@@ -25,14 +25,67 @@ interface TaskProps {
 }
 
 export const KanbanTask = ({ task }: TaskProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: task.id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+    data: {
+      task,
+    },
+  });
 
   const style = {
     transition,
     transform: CSS.Transform.toString(transform),
     touchAction: 'none',
   };
+
+  if (isDragging) {
+    return (
+      <Card
+        ref={setNodeRef}
+        {...attributes}
+        {...listeners}
+        style={style}
+        key={task.id}
+        size="sm"
+        mb={10}
+        borderRadius="30px"
+        p={2}
+        zIndex={999}
+      >
+        <CardHeader pb={1}>
+          <Flex direction="column" gap={2}>
+            <Badge
+              bg={getBadgeColor(task.priority)}
+              p="1"
+              maxW="65px"
+              textAlign="center"
+              borderRadius="20px"
+              fontSize="11px"
+            >
+              {task.priority}
+            </Badge>
+            <Heading size="15px">{task.name}</Heading>
+          </Flex>
+        </CardHeader>
+        <CardBody pt={1}>
+          <Text fontSize="sm" color="#6D7280">
+            {task.description}
+          </Text>
+          <Text fontSize="sm" color="#666666">
+            {task.startDate}
+          </Text>
+        </CardBody>
+      </Card>
+    );
+  }
+
   return (
     <Card
       ref={setNodeRef}

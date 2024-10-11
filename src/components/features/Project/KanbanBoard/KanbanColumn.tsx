@@ -7,10 +7,8 @@ import {
   Flex,
   IconButton,
 } from '@chakra-ui/react';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { SortableContext } from '@dnd-kit/sortable';
+import { useMemo } from 'react';
 
 import { KanbanTask } from './KanbanTask';
 
@@ -34,6 +32,11 @@ interface ColumnProps {
 }
 
 export const KanbanColumn = ({ columns }: ColumnProps) => {
+  const taskIds = useMemo(
+    () => columns.tasks.map((task) => task.id),
+    [columns.tasks]
+  );
+
   return (
     <Card>
       <Flex direction="column">
@@ -52,10 +55,7 @@ export const KanbanColumn = ({ columns }: ColumnProps) => {
           </Flex>
         </CardHeader>
         <CardBody>
-          <SortableContext
-            items={columns.tasks.map((task) => task.id)}
-            strategy={verticalListSortingStrategy}
-          >
+          <SortableContext items={taskIds}>
             {columns.tasks.map((task) => (
               <KanbanTask key={task.id} task={task} />
             ))}
