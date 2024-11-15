@@ -72,7 +72,7 @@ export class HttpClient<SecurityDataType = unknown> {
   }: ApiConfig<SecurityDataType> = {}) {
     this.instance = axios.create({
       ...axiosConfig,
-      baseURL: axiosConfig.baseURL || process.env.REACT_APP_API_URL,
+      baseURL: axiosConfig.baseURL || "https://seamlessup.com",
     });
     this.secure = secure;
     this.format = format;
