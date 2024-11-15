@@ -9,6 +9,7 @@ const axiosConfig = {
   headers: {
     Authorization: `Bearer ${authToken}`,
   },
+  baseURL: process.env.REACT_APP_API_URL,
 };
 
 export const authProjectApi = new Project(axiosConfig);
