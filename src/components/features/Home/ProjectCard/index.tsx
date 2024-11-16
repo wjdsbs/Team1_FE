@@ -1,8 +1,8 @@
-import { Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import { Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react"
 import styled from "@emotion/styled";
 import type { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { MoreVertical } from "lucide-react";
-import React, { useCallback } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useDeleteProject } from "../../../../api/hooks/useDeleteProject";
@@ -45,32 +45,21 @@ export const ProjectCard: React.FC<Props> = ({
   const navigate = useNavigate();
   const { mutate: deleteProject } = useDeleteProject();
 
-  const handleDelete = useCallback(async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    deleteProject(
-      { projectId: id },
-      {
-        onSuccess: async () => {
-          if (onDeleteSuccess) {
-            onDeleteSuccess();
-          }
-          await Promise.all([refetch(), refetchSchedule()]);
-        },
-        onError: (error) => {
-          console.error("Delete project error:", error);
-        },
+  const handleDelete = async () => {
+    try {
+      await deleteProject({ projectId: id });
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
       }
-    );
-  }, [deleteProject, id, onDeleteSuccess, refetch, refetchSchedule]);
-
-  const handleCardClick = useCallback((e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('.menu-container')) {
-      return;
+      await Promise.all([refetch(), refetchSchedule()]);
+    } catch (error) {
+      console.error("Delete project error:", error);
     }
+  };
+
+  const handleCardClick = () => {
     navigate(`/projects/${id}`);
-  }, [navigate, id]);
+  };
 
   return (
     <Wrapper
@@ -87,28 +76,22 @@ export const ProjectCard: React.FC<Props> = ({
           <PurpleBackground />
         )}
       </ImageArea>
-      <MenuContainer className="menu-container">
-        <Menu>
-          <MenuButton as={SettingsButton}>
-            <MoreVertical size={16} />
-          </MenuButton>
-          <MenuList
-            minW="120px"
-            boxShadow="md"
-            border="1px solid"
-            borderColor="gray.100"
-            zIndex={10}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <MenuItem
-              onClick={handleDelete}
-              color="red.500"
-            >
-              삭제
-            </MenuItem>
-          </MenuList>
-        </Menu>
-      </MenuContainer>
+      <Menu placement="top">
+        <MenuButton as={SettingsButton}>
+          <MoreVertical size={16} />
+        </MenuButton>
+        <MenuList
+          minW="120px"
+          boxShadow="md"
+          border="1px solid"
+          borderColor="gray.100"
+          zIndex={10}
+        >
+          <MenuItem textAlign="center" onClick={handleDelete} color="red.500">
+            삭제
+          </MenuItem>
+        </MenuList>
+      </Menu>
       <TextArea>
         <Title>{title}</Title>
         <DateInfo>
@@ -162,19 +145,16 @@ const PurpleBackground = styled.div`
   background-color: #d9d9ff;
 `;
 
-const MenuContainer = styled.div`
+const SettingsButton = styled(MenuButton)`
   position: absolute;
   top: 8px;
   right: 8px;
-  z-index: 2;
-`;
-
-const SettingsButton = styled.button`
   background: transparent;
   border: none;
   cursor: pointer;
   color: black;
   padding: 4px;
+  z-index: 1;
 
   &:hover {
     background: rgba(0, 0, 0, 0.1);
