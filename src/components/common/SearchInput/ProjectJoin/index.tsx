@@ -11,8 +11,10 @@ const validateName = (name: string): boolean => {
   return name.trim().length >= 2;
 };
 
-const validateUrl = (url: string): boolean => {
-  return url.trim().length > 0;
+const extractInviteCode = (): string => {
+  const pathname = window.location.pathname;
+  const matches = pathname.match(/\/invite\/([^\/]+)/);
+  return matches ? matches[1] : '';
 };
 
 interface InviteResponse {
@@ -43,13 +45,11 @@ interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 interface FormData {
   email: string;
   name: string;
-  attendURL: string;
 }
 
 interface FormValidity {
   email: boolean;
   name: boolean;
-  attendURL: boolean;
 }
 
 const createMember = async (
@@ -123,13 +123,11 @@ export const JoinInput: React.FC<FormInputProps> = ({
   const [formData, setFormData] = useState<FormData>({
     email: "",
     name: "",
-    attendURL: "",
   });
 
   const [validity, setValidity] = useState<FormValidity>({
     email: false,
     name: false,
-    attendURL: false,
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -144,28 +142,29 @@ export const JoinInput: React.FC<FormInputProps> = ({
 
       setValidity((prev) => ({
         ...prev,
-        [name]:
-          name === "email"
-            ? validateEmail(value)
-            : name === "name"
-              ? validateName(value)
-              : validateUrl(value),
+        [name]: name === "email" ? validateEmail(value) : validateName(value),
       }));
     },
     [],
   );
 
-  const isFormValid = validity.email && validity.name && validity.attendURL;
+  const isFormValid = validity.email && validity.name;
 
   const handleJoin = useCallback(async () => {
     if (!isFormValid || isLoading) return;
+
+    const inviteCode = extractInviteCode();
+    if (!inviteCode) {
+      onJoinError?.(new Error("유효하지 않은 초대 링크입니다."));
+      return;
+    }
 
     setIsLoading(true);
     try {
       const memberResponse = await createMember(
         formData.email,
         formData.name,
-        formData.attendURL,
+        inviteCode,
       );
 
       if (memberResponse.errorCode === 200 && memberResponse.resultData) {
@@ -179,8 +178,8 @@ export const JoinInput: React.FC<FormInputProps> = ({
         }
 
         onJoinSuccess?.(memberResponse.resultData);
-        setFormData({ email: "", name: "", attendURL: "" });
-        setValidity({ email: false, name: false, attendURL: false });
+        setFormData({ email: "", name: "" });
+        setValidity({ email: false, name: false });
       } else {
         throw new Error(
           memberResponse.errorMessage || "멤버 생성에 실패했습니다.",
@@ -209,14 +208,6 @@ export const JoinInput: React.FC<FormInputProps> = ({
         onChange={handleInputChange}
         placeholder="이메일 주소를 입력해주세요."
         type="email"
-        {...props}
-      />
-      <StyledInput
-        name="attendURL"
-        value={formData.attendURL}
-        onChange={handleInputChange}
-        placeholder="참석 URL을 입력해주세요."
-        type="text"
         {...props}
       />
       <Button
