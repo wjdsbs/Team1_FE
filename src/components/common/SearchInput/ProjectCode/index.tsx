@@ -7,7 +7,6 @@ import {
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import React, { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { authSessionStorage } from "../../../../utils/storage";
 
@@ -76,7 +75,6 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const [memberCode, setMemberCode] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
   const toast = useToast();
 
   const handleInputChange = useCallback(
@@ -105,7 +103,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         duration: 3000,
         isClosable: true,
       });
-      navigate(`projects/${response.resultData.projectId}`);
+      window.location.href = `/projects/${response.resultData.projectId}`;
     } catch (error) {
       console.error("Unexpected error:", error);
       const unexpectedError = new Error(
@@ -122,7 +120,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [memberCode, isValid, isLoading, navigate, onError, toast]);
+  }, [memberCode, isValid, isLoading, onError, toast]);
 
   const handleKeyPress = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
