@@ -76,7 +76,7 @@ export const ProjectCard: React.FC<Props> = ({
           <PurpleBackground />
         )}
       </ImageArea>
-      <Menu placement="top">
+      <Menu placement="top-end" >
         <MenuButton as={SettingsButton}>
           <MoreVertical size={16} />
         </MenuButton>
