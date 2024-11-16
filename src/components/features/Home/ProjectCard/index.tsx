@@ -2,7 +2,7 @@ import { Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import type { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { MoreVertical } from "lucide-react";
-import React from "react";
+import React, { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useDeleteProject } from "../../../../api/hooks/useDeleteProject";
@@ -45,7 +45,7 @@ export const ProjectCard: React.FC<Props> = ({
   const navigate = useNavigate();
   const { mutate: deleteProject } = useDeleteProject();
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -56,7 +56,6 @@ export const ProjectCard: React.FC<Props> = ({
           if (onDeleteSuccess) {
             onDeleteSuccess();
           }
-          // 프로젝트 목록과 스케줄 모두 리패치
           await Promise.all([refetch(), refetchSchedule()]);
         },
         onError: (error) => {
@@ -64,15 +63,14 @@ export const ProjectCard: React.FC<Props> = ({
         },
       }
     );
-  };
+  }, [deleteProject, id, onDeleteSuccess, refetch, refetchSchedule]);
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    // 메뉴 컴포넌트의 자식요소를 클릭한 경우 라우팅 방지
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.menu-container')) {
       return;
     }
     navigate(`/projects/${id}`);
-  };
+  }, [navigate, id]);
 
   return (
     <Wrapper
@@ -91,15 +89,16 @@ export const ProjectCard: React.FC<Props> = ({
       </ImageArea>
       <MenuContainer className="menu-container">
         <Menu>
-          <SettingsButton>
+          <MenuButton as={SettingsButton}>
             <MoreVertical size={16} />
-          </SettingsButton>
+          </MenuButton>
           <MenuList
             minW="120px"
             boxShadow="md"
             border="1px solid"
             borderColor="gray.100"
             zIndex={10}
+            onClick={(e) => e.stopPropagation()}
           >
             <MenuItem
               onClick={handleDelete}
@@ -170,7 +169,7 @@ const MenuContainer = styled.div`
   z-index: 2;
 `;
 
-const SettingsButton = styled(MenuButton)`
+const SettingsButton = styled.button`
   background: transparent;
   border: none;
   cursor: pointer;
