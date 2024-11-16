@@ -7,7 +7,6 @@ import {
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import React, { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { authSessionStorage } from "../../../../utils/storage";
 
@@ -69,6 +68,16 @@ const authenticateWithCode = async (
   return data;
 };
 
+const setAuthToken = async (token: string): Promise<void> => {
+  return new Promise((resolve) => {
+    authSessionStorage.set({
+      role: "MEMBER",
+      token: token,
+    });
+    // DOM 업데이트와 스토리지 동기화를 위한 지연
+    setTimeout(resolve, 100);
+  });
+};
 export const SearchInput: React.FC<SearchInputProps> = ({
   onError,
   ...inputProps
@@ -76,7 +85,6 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const [memberCode, setMemberCode] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
   const toast = useToast();
 
   const handleInputChange = useCallback(
@@ -94,10 +102,16 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     setIsLoading(true);
     try {
       const response = await authenticateWithCode(memberCode);
-      authSessionStorage.set({
-        role: "MEMBER",
-        token: response.resultData.token,
-      });
+
+      // 토큰 저장
+      await setAuthToken(response.resultData.token);
+
+      // 토큰이 실제로 저장되었는지 확인
+      const storedToken = authSessionStorage.get()?.token;
+      if (!storedToken) {
+        throw new Error("토큰 저장에 실패했습니다.");
+      }
+
       toast({
         title: "인증 성공",
         description: "프로젝트로 이동합니다.",
@@ -105,7 +119,13 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         duration: 3000,
         isClosable: true,
       });
-      navigate(`projects/${response.resultData.projectId}`);
+
+      // 페이지 이동 전 약간의 지연
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // window.location.href를 사용하여 페이지 새로고침과 함께 이동
+      window.location.href = `/projects/${response.resultData.projectId}`;
+
     } catch (error) {
       console.error("Unexpected error:", error);
       const unexpectedError = new Error(
@@ -122,7 +142,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [memberCode, isValid, isLoading, navigate, onError, toast]);
+  }, [memberCode, isValid, isLoading, onError, toast]);
 
   const handleKeyPress = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {

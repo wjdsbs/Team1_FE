@@ -35,6 +35,7 @@ export const ProjectCard: React.FC<Props> = ({
   title,
   startDate,
   endDate,
+  option,
   imageSrc,
   width,
   height,
@@ -45,7 +46,8 @@ export const ProjectCard: React.FC<Props> = ({
   const navigate = useNavigate();
   const { mutate: deleteProject } = useDeleteProject();
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // 이벤트 버블링 방지
     try {
       await deleteProject({ projectId: id });
       if (onDeleteSuccess) {
@@ -55,6 +57,16 @@ export const ProjectCard: React.FC<Props> = ({
     } catch (error) {
       console.error("Delete project error:", error);
     }
+  };
+
+  const handleSettingsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log("Project details:", {
+      title,
+      startDate,
+      endDate,
+      option,
+    });
   };
 
   const handleCardClick = () => {
@@ -76,10 +88,10 @@ export const ProjectCard: React.FC<Props> = ({
           <PurpleBackground />
         )}
       </ImageArea>
-      <Menu placement="top-end" >
-        <MenuButton as={SettingsButton}>
+      <Menu>
+        <SettingsButton onClick={handleSettingsClick}>
           <MoreVertical size={16} />
-        </MenuButton>
+        </SettingsButton>
         <MenuList
           minW="120px"
           boxShadow="md"
@@ -87,7 +99,11 @@ export const ProjectCard: React.FC<Props> = ({
           borderColor="gray.100"
           zIndex={10}
         >
-          <MenuItem textAlign="center" onClick={handleDelete} color="red.500">
+          <MenuItem
+            textAlign="center"
+            onClick={handleDelete}
+            color="red.500"
+          >
             삭제
           </MenuItem>
         </MenuList>
