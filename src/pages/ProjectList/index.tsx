@@ -131,7 +131,7 @@ export const ProjectListPage: React.FC = () => {
       <Box mt={10}>
         <Flex alignItems="center" justifyContent="center" gap="800">
           <Text fontSize="20px" fontWeight="bold" mb={6}>
-            프로젝트
+            프로젝트 목록
           </Text>
 
           <Button
