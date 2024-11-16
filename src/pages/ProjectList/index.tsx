@@ -103,7 +103,7 @@ export const ProjectListPage: React.FC = () => {
               startDate={project.startDate}
               endDate={project.endDate}
               option={{
-                type: project?.optionIds?.length === 2 ? "basic" : "custom",
+                type: project.optionIds.length === 2 ? "basic" : "custom",
               }}
               imageSrc={project.imageURL}
               refetch={refetchProjects}
