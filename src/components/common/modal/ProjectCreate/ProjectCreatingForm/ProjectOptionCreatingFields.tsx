@@ -8,8 +8,8 @@ import { SwitchField } from "../../../Fields/switchField";
 const options = [
   {
     id: 1,
-    title: "진행률에 따른 나무 성장!",
-    description: "진행률이 오를수록 나무가 성장해요.",
+    title: "진행률에 따른 식물 성장!",
+    description: "진행률이 오를수록 식물이 성장해요.",
     fieldId: "treeGrowth",
   },
   {

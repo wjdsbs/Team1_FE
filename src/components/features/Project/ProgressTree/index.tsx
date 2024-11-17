@@ -79,7 +79,7 @@ export const ProgressTree = ({ projectId }: ProgressTreeProps) => {
   });
 
   if (error) {
-    return <div>프로젝트의 나무를 불러오지 못했습니다.</div>;
+    return <div>프로젝트의 식물을 불러오지 못했습니다.</div>;
   }
   if (isLoading) {
     return <div>Loading...</div>;
