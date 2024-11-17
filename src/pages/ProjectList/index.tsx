@@ -103,7 +103,7 @@ export const ProjectListPage: React.FC = () => {
               startDate={project.startDate}
               endDate={project.endDate}
               option={{
-                type: project?.optionIds?.length === 2 ? "basic" : "custom",
+                type: project.optionIds.length === 2 ? "basic" : "custom",
               }}
               imageSrc={project.imageURL}
               refetch={refetchProjects}
@@ -131,7 +131,7 @@ export const ProjectListPage: React.FC = () => {
       <Box mt={10}>
         <Flex alignItems="center" justifyContent="center" gap="800">
           <Text fontSize="20px" fontWeight="bold" mb={6}>
-            프로젝트
+            프로젝트 목록
           </Text>
 
           <Button

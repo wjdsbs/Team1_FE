@@ -46,13 +46,13 @@ export const ProjectCard: React.FC<Props> = ({
   const navigate = useNavigate();
   const { mutate: deleteProject } = useDeleteProject();
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // 이벤트 버블링 방지
     try {
       await deleteProject({ projectId: id });
       if (onDeleteSuccess) {
         onDeleteSuccess();
       }
-      // 프로젝트 목록과 스케줄 모두 리패치
       await Promise.all([refetch(), refetchSchedule()]);
     } catch (error) {
       console.error("Delete project error:", error);
@@ -99,7 +99,13 @@ export const ProjectCard: React.FC<Props> = ({
           borderColor="gray.100"
           zIndex={10}
         >
-          <MenuItem textAlign="center" onClick={handleDelete} color="red.500">삭제</MenuItem>
+          <MenuItem
+            textAlign="center"
+            onClick={handleDelete}
+            color="red.500"
+          >
+            삭제
+          </MenuItem>
         </MenuList>
       </Menu>
       <TextArea>
